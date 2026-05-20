@@ -6,6 +6,7 @@ import type {
   SessionMeta,
   Facet,
   HistoryEntry,
+  ModelUsage,
 } from '@/types/claude'
 import { slugToPath } from '@/lib/decode'
 
@@ -103,6 +104,7 @@ async function parseSessionFile(filePath: string, sessionId: string): Promise<Pa
   let gitBranch: string | undefined
   let hasCompaction = false
   let hasThinking = false
+  const modelUsage: Record<string, ModelUsage> = {}
 
   try {
     const raw = await fs.readFile(filePath, 'utf-8')
@@ -145,12 +147,32 @@ async function parseSessionFile(filePath: string, sessionId: string): Promise<Pa
         }
         if (obj.type === 'assistant') {
           assistantCount++
-          const msg = (obj as { message?: { usage?: Record<string, number>; content?: unknown[] } }).message
+          const msg = (obj as { message?: { model?: string; usage?: Record<string, number>; content?: unknown[] } }).message
           if (msg?.usage) {
-            inputTokens += msg.usage.input_tokens ?? 0
-            outputTokens += msg.usage.output_tokens ?? 0
-            cacheRead += msg.usage.cache_read_input_tokens ?? 0
-            cacheWrite += msg.usage.cache_creation_input_tokens ?? 0
+            const turnInput = msg.usage.input_tokens ?? 0
+            const turnOutput = msg.usage.output_tokens ?? 0
+            const turnCacheRead = msg.usage.cache_read_input_tokens ?? 0
+            const turnCacheWrite = msg.usage.cache_creation_input_tokens ?? 0
+            inputTokens += turnInput
+            outputTokens += turnOutput
+            cacheRead += turnCacheRead
+            cacheWrite += turnCacheWrite
+
+            if (msg.model) {
+              const existing = modelUsage[msg.model] ?? {
+                inputTokens: 0,
+                outputTokens: 0,
+                cacheReadInputTokens: 0,
+                cacheCreationInputTokens: 0,
+                costUSD: 0,
+                webSearchRequests: 0,
+              }
+              existing.inputTokens += turnInput
+              existing.outputTokens += turnOutput
+              existing.cacheReadInputTokens += turnCacheRead
+              existing.cacheCreationInputTokens += turnCacheWrite
+              modelUsage[msg.model] = existing
+            }
           }
           const content = msg?.content
           if (Array.isArray(content)) {
@@ -209,6 +231,7 @@ async function parseSessionFile(filePath: string, sessionId: string): Promise<Pa
     files_modified: 0,
     message_hours: messageHours,
     user_message_timestamps: userMessageTimestamps,
+    model_usage: modelUsage,
     cwd,
     slug_name: slugName,
     cc_version: ccVersion,
