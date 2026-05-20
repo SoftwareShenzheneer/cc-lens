@@ -50,9 +50,27 @@ export async function GET() {
     return NextResponse.json({ sessions: result, total: result.length })
   }
 
+  // Parsed-JSONL sessions emit placeholder zeros/empties for fields they don't
+  // compute (languages, git stats, line counts, tool errors, response times).
+  // Keep `p` for JSONL-fresh fields and overlay only the meta-only fields when
+  // present, so real meta values aren't clobbered by placeholders.
   const result = parsed.map((p) => {
     const meta = metaMap.get(p.session_id)
-    const merged: SessionMeta = meta ? { ...meta, ...p } : p
+    const merged: SessionMeta = meta
+      ? {
+          ...p,
+          languages:             Object.keys(meta.languages ?? {}).length ? meta.languages : p.languages,
+          git_commits:           meta.git_commits           || p.git_commits,
+          git_pushes:            meta.git_pushes            || p.git_pushes,
+          user_interruptions:    meta.user_interruptions    || p.user_interruptions,
+          user_response_times:   meta.user_response_times?.length ? meta.user_response_times : p.user_response_times,
+          tool_errors:           meta.tool_errors           || p.tool_errors,
+          tool_error_categories: Object.keys(meta.tool_error_categories ?? {}).length ? meta.tool_error_categories : p.tool_error_categories,
+          lines_added:           meta.lines_added           || p.lines_added,
+          lines_removed:         meta.lines_removed         || p.lines_removed,
+          files_modified:        meta.files_modified        || p.files_modified,
+        }
+      : p
     return toSessionWithFacet(merged, p, facetMap.get(p.session_id))
   })
 

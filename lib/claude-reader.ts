@@ -56,6 +56,8 @@ export async function resolveProjectPath(slug: string): Promise<string> {
       }
     } catch { /* try next file */ }
   }
+  // No cwd recovered — drop any stale cache entry before falling back
+  projectCwdCache.delete(slug)
   return slugToPath(slug)
 }
 
@@ -272,7 +274,12 @@ export async function getAllParsedSessions(): Promise<ParsedSession[]> {
   for (const { slug, session } of parsed) {
     if (session?.cwd && !slugCwd.has(slug)) slugCwd.set(slug, session.cwd)
   }
-  // Keep the cross-call cache warm for resolveProjectPath callers
+  // Keep the cross-call cache warm for resolveProjectPath callers, and evict
+  // entries for slugs that vanished or whose scan yielded no cwd this pass.
+  const knownSlugs = new Set(slugs)
+  for (const slug of projectCwdCache.keys()) {
+    if (!knownSlugs.has(slug) || !slugCwd.has(slug)) projectCwdCache.delete(slug)
+  }
   for (const [slug, cwd] of slugCwd) projectCwdCache.set(slug, cwd)
 
   const results: ParsedSession[] = []
