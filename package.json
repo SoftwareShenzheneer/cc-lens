@@ -1,6 +1,6 @@
 {
   "name": "cc-lens",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Claude Code Lens — visualize your usage, costs, and sessions from ~/.claude/",
   "author": "Arindam Majumder <arindam@studio1hq.com> (https://github.com/Arindam200)",
   "license": "MIT",
@@ -25,21 +25,17 @@
   },
   "files": [
     "bin",
-    "app",
-    "components",
-    "lib",
-    "types",
-    "public",
-    "next.config.*",
-    "tsconfig.json",
-    "postcss.config.*",
-    "components.json"
+    ".next/standalone",
+    ".next/static",
+    "public"
   ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:dist": "next build && node bin/prepare-standalone.js",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prepublishOnly": "npm run build:dist"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4",
@@ -57,6 +53,7 @@
     "react": "19.2.3",
     "react-day-picker": "^9.14.0",
     "react-dom": "19.2.3",
+    "react-is": "^19.2.5",
     "react-markdown": "^10.1.0",
     "recharts": "^3.7.0",
     "remark-gfm": "^4.0.1",

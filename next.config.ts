@@ -8,6 +8,20 @@ import { fileURLToPath } from "url";
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const nextConfig: NextConfig = {
+  // Produces .next/standalone/ with a self-contained server.js + minimal node_modules,
+  // so `npx cc-lens` can launch immediately without `npm install` on first run.
+  output: 'standalone',
+  outputFileTracingRoot: packageRoot,
+  outputFileTracingExcludes: {
+    '*': [
+      '.claude/**',
+      '.git/**',
+      'node_modules/.cache/**',
+      '**/*.md',
+      '**/*.png',
+      '**/*.jpg',
+    ],
+  },
   turbopack: {
     root: packageRoot,
   },
