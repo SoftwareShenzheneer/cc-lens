@@ -163,6 +163,7 @@ async function deriveSessionMetaFromJSONL(
     session_id: sessionId,
     project_path: projectPath,
     start_time: startTime,
+    last_activity: lastTime || startTime,
     duration_minutes: durationMinutes,
     user_message_count: userCount,
     assistant_message_count: assistantCount,
