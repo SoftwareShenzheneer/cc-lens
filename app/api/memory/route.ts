@@ -30,15 +30,22 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Only .md files allowed' }, { status: 400 })
     }
 
-    // Prevent path traversal — slug and file must be plain names (no slashes or dots)
-    if (/[/\\]/.test(projectSlug) || /[/\\]/.test(file)) {
-      return NextResponse.json({ error: 'Invalid path' }, { status: 400 })
+    // Prevent path traversal — use whitelist approach for safe characters only
+    // Only allow alphanumeric, underscore, dash, and dot in project slug
+    if (!/^[a-zA-Z0-9_.-]+$/.test(projectSlug)) {
+      return NextResponse.json({ error: 'Invalid project slug' }, { status: 400 })
     }
 
-    const filePath = path.join(CLAUDE_DIR, 'projects', projectSlug, 'memory', file)
+    // Only allow alphanumeric, underscore, dash, dot in filename, must end with .md
+    if (!/^[a-zA-Z0-9_.-]+\.md$/.test(file)) {
+      return NextResponse.json({ error: 'Invalid filename' }, { status: 400 })
+    }
 
-    // Ensure the resolved path stays within ~/.claude/projects/
-    const allowedRoot = path.join(CLAUDE_DIR, 'projects')
+    // Use path.resolve to normalize and resolve any .. or symlinks
+    const filePath = path.resolve(path.join(CLAUDE_DIR, 'projects', projectSlug, 'memory', file))
+    const allowedRoot = path.resolve(path.join(CLAUDE_DIR, 'projects'))
+
+    // Ensure the normalized path stays within ~/.claude/projects/
     if (!filePath.startsWith(allowedRoot + path.sep)) {
       return NextResponse.json({ error: 'Path outside allowed directory' }, { status: 403 })
     }
@@ -47,6 +54,7 @@ export async function PATCH(req: Request) {
     await fs.writeFile(filePath, content, 'utf-8')
     return NextResponse.json({ ok: true })
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 })
+    console.error('[memory] Failed to write file:', err)
+    return NextResponse.json({ error: 'Failed to save memory file' }, { status: 500 })
   }
 }

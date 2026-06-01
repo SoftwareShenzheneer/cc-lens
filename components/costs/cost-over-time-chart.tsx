@@ -77,7 +77,7 @@ export function CostOverTimeChart({ daily }: Props) {
           <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} tickFormatter={v => `$${v.toFixed(2)}`} width={48} />
           <Tooltip
             contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}
-            formatter={(val: number | undefined, name?: string) => [formatCost(val ?? 0), shortModel(name ?? '')]}
+            formatter={(val, name) => [formatCost(Number(val ?? 0)), shortModel(String(name ?? ''))]}
           />
           {models.map(m => (
             <Area

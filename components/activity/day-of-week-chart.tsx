@@ -18,7 +18,7 @@ export function DayOfWeekChart({ data }: Props) {
           <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} width={28} />
           <Tooltip
             contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}
-            formatter={(val: number | undefined) => [(val ?? 0).toLocaleString(), 'messages']}
+            formatter={(val: any) => [(val ?? 0).toLocaleString(), 'messages']}
           />
           <Bar dataKey="count" radius={[3, 3, 0, 0]}>
             {data.map((d, i) => (

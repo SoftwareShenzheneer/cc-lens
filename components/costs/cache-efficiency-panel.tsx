@@ -67,7 +67,7 @@ export function CacheEfficiencyPanel({ models, totalSavings }: Props) {
           </Pie>
           <Tooltip
             contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}
-            formatter={(val: number | undefined, name?: string) => [formatTokens(val ?? 0), name ?? '']}
+            formatter={(val, name) => [formatTokens(Number(val ?? 0)), String(name ?? '')]}
           />
         </PieChart>
       </ResponsiveContainer>

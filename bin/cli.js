@@ -80,6 +80,14 @@ async function main() {
   const port     = await findFreePort(Number(process.env.PORT) || 3000)
   const url      = `http://${hostname === '0.0.0.0' ? 'localhost' : hostname}:${port}`
 
+  // Security warning for LAN access
+  if (hostname === '0.0.0.0') {
+    console.log(`  ${O}⚠${R}  ${B}Security Warning:${R} Exposing to LAN without authentication`)
+    console.log(`     Anyone on your network can access your Claude Code history`)
+    console.log(`     This includes prompts, code, file paths, and session data`)
+    console.log()
+  }
+
   console.log(`  ${DIM}Starting server on${R} ${O2}${B}${url}${R}\n`)
 
   const child = spawn(process.execPath, [SERVER_JS], {

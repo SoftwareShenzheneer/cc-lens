@@ -69,8 +69,8 @@ export function TokenAccumulationChart({ turns, compactions }: Props) {
           />
           <Tooltip
             contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}
-            formatter={(val: number | undefined, name?: string) => [
-              name === 'tokens' ? formatTokens(val ?? 0) : formatCost(val ?? 0),
+            formatter={(val, name) => [
+              name === 'tokens' ? formatTokens(Number(val ?? 0)) : formatCost(Number(val ?? 0)),
               name === 'tokens' ? 'Context tokens' : 'Cumulative cost',
             ]}
           />

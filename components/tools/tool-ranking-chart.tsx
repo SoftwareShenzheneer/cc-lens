@@ -36,8 +36,8 @@ export function ToolRankingChart({ tools }: Props) {
           />
           <Tooltip
             contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}
-            formatter={(val: number | undefined, _name?: string, props?: { payload?: { name?: string } }) => [
-              (val ?? 0).toLocaleString() + ' calls',
+            formatter={(val, _name, props?: { payload?: { name?: string } }) => [
+              Number(val ?? 0).toLocaleString() + ' calls',
               props?.payload?.name ?? '',
             ]}
           />

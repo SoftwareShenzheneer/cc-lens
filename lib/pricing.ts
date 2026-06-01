@@ -54,11 +54,11 @@ function isValidEntry(v: unknown): v is ModelPricing {
 function loadUserOverrides(): Record<string, ModelPricing> {
   if (typeof window !== 'undefined') return {}
   try {
-    // Use eval to keep these out of any client bundle that might import this
-    // file by accident. They only run server-side.
-    const os   = eval('require')('os')   as typeof import('os')
-    const path = eval('require')('path') as typeof import('path')
-    const fs   = eval('require')('fs')   as typeof import('fs')
+    // Dynamic imports to prevent bundling in client code
+    // These are only available server-side in Node.js
+    const os   = require('os')   as typeof import('os')
+    const path = require('path') as typeof import('path')
+    const fs   = require('fs')   as typeof import('fs')
 
     const configDir = process.env.CC_LENS_CONFIG_DIR ?? path.join(os.homedir(), '.cc-lens')
     const file = path.join(configDir, 'pricing.json')

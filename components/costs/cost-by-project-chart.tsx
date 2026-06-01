@@ -34,7 +34,7 @@ export function CostByProjectChart({ projects }: Props) {
           />
           <Tooltip
             contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}
-            formatter={(val: number | undefined) => [formatCost(val ?? 0), 'Estimated cost']}
+            formatter={(val) => [formatCost(Number(val ?? 0)), 'Estimated cost']}
           />
           <Bar dataKey="estimated_cost" radius={[0, 3, 3, 0]}>
             {top.map((_, i) => (
